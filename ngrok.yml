@@ -1,0 +1,7 @@
+version: 2
+authtoken: 2yeL5x5gtoizHprxIujKvVXfEgd_4jeVbk1iKJb2UHfddesti
+tunnels:
+  fastapi:
+    proto: http
+    addr: 8000
+    domain: rich-sadly-oryx.ngrok-free.app

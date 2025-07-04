@@ -1,0 +1,70 @@
+<form id = 'colors-form'>
+    <input type = 'number'   name = 'id' placeholder = 'id: (42)' /><br>
+    <input type = 'text'     name = 'name'  placeholder = 'color: (blue)' /><br>
+    <input type = 'number'   name = 'shade' placeholder = 'shade: (100)' /><br>
+    <input type = 'checkbox' name = 'dark'>dark mode</input><br><br>
+    <input type='radio' name='method' value='GET'>GET<br>
+    <input type='radio' name='method' value='POST'>POST<br>
+    <input type='radio' name='method' value='PUT'>PUT<br>
+    <input type='radio' name='method' value='PATCH'>PATCH<br>
+    <input type='radio' name='method' value='DELETE'>DELETE<br><br>
+    <input type='submit' value='Submit'>
+</form>
+
+<button id = 'clear-button'>Clear All</button>
+
+<pre id = 'output'></pre>
+
+<pre id = 'db-output'></pre>
+
+<script>
+    async function renderDb() {
+        const res = await fetch('http://localhost:3000/api/colors');
+        const data = await res.json();
+        const dbOutput = document.getElementById('db-output');
+        dbOutput.textContent = JSON.stringify(data, null, 2);
+    }
+
+    renderDb();
+
+    document.getElementById('clear-button').addEventListener('click', async (e) => {
+        // e.preventDefault();
+        const res = await fetch('http://localhost:3000/api/colors', { method: 'DELETE' });
+        renderDb();
+    })
+
+    document.getElementById('colors-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id     = e.target.elements['id'].value;
+        const name   = e.target.elements['name'].value;
+        const shade  = e.target.elements['shade'].value;
+        const dark   = e.target.elements['dark'].checked;
+        const method = e.target.elements['method'].value;
+
+        let res;
+        if (method === 'GET' || method === 'DELETE') {
+            res = await fetch(`http://localhost:3000/api/colors/${id}`, { method: method});
+        } else if (method === 'PUT' || method === 'PATCH') {
+            res = await fetch(`http://localhost:3000/api/colors/${id}`, {
+                method: method,
+                body: JSON.stringify({ 'name': name, 'shade': shade, 'dark': dark }),
+                headers: { 
+                    'Content-Type': 'application/json'
+                }
+            });
+        } else {
+            res = await fetch('http://localhost:3000/api/colors', {
+                method: method,
+                body: JSON.stringify({ 'name': name , 'shade': shade, 'dark': dark}),
+                headers: { 
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+        
+        const data = await res.json();
+        const output = document.getElementById('output');
+        output.textContent = JSON.stringify(data, ['id','name', 'shade', 'dark'], 2)
+        renderDb();
+    })
+</script>
